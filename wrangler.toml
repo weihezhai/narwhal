@@ -1,0 +1,12 @@
+name = "tradingnarwhal-backend"
+main = "server/worker.mjs"
+compatibility_date = "2026-03-06"
+workers_dev = true
+
+[env.production]
+workers_dev = true
+
+[env.production.vars]
+SUPABASE_TABLE = "strategies"
+RATE_LIMIT_DAILY_MAX = "200"
+LEADERBOARD_REFRESH_MS = "20000"

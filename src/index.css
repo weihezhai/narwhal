@@ -1,0 +1,166 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light theme (default) */
+    --background: 216 30% 97%;
+    --foreground: 220 40% 11%;
+
+    --card: 210 20% 96% / 0.6;
+    --card-foreground: 220 40% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 40% 11%;
+
+    --primary: 210 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 214 25% 92%;
+    --secondary-foreground: 220 30% 25%;
+
+    --muted: 214 20% 94%;
+    --muted-foreground: 215 15% 45%;
+
+    --accent: 210 100% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 20% 90%;
+    --input: 214 20% 90%;
+    --ring: 210 100% 50%;
+
+    --radius: 0.75rem;
+
+    --success: 142 71% 40%;
+    --success-foreground: 142 71% 15%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 38 92% 15%;
+
+    --glass: 214 25% 95% / 0.5;
+    --glass-border: 214 20% 88% / 0.6;
+
+    --gradient-start: 212 50% 94%;
+    --gradient-mid: 210 15% 99%;
+    --gradient-end: 212 50% 94%;
+
+    --sidebar-background: 220 30% 97%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 210 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 20% 92%;
+    --sidebar-accent-foreground: 222 30% 25%;
+    --sidebar-border: 220 15% 88%;
+    --sidebar-ring: 210 100% 50%;
+  }
+
+  /* Dark theme */
+  .dark {
+    --background: 220 30% 10%;
+    --foreground: 210 40% 92%;
+
+    --card: 220 25% 16% / 0.6;
+    --card-foreground: 210 40% 92%;
+
+    --popover: 220 30% 12%;
+    --popover-foreground: 210 40% 92%;
+
+    --primary: 210 100% 56%;
+    --primary-foreground: 220 30% 6%;
+
+    --secondary: 220 20% 20%;
+    --secondary-foreground: 210 40% 85%;
+
+    --muted: 220 22% 16%;
+    --muted-foreground: 215 20% 55%;
+
+    --accent: 210 100% 56%;
+    --accent-foreground: 220 30% 6%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 220 22% 20%;
+    --input: 220 22% 20%;
+    --ring: 210 100% 56%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 142 71% 85%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 38 92% 85%;
+
+    --glass: 220 25% 18% / 0.5;
+    --glass-border: 220 20% 26% / 0.6;
+
+    --gradient-start: 215 45% 18%;
+    --gradient-mid: 218 30% 12%;
+    --gradient-end: 215 45% 18%;
+
+    --sidebar-background: 222 47% 6%;
+    --sidebar-foreground: 210 40% 92%;
+    --sidebar-primary: 210 100% 56%;
+    --sidebar-primary-foreground: 222 47% 6%;
+    --sidebar-accent: 222 30% 16%;
+    --sidebar-accent-foreground: 210 40% 85%;
+    --sidebar-border: 222 30% 18%;
+    --sidebar-ring: 210 100% 56%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', sans-serif;
+    @apply tracking-tight;
+  }
+
+  code, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    background: hsl(var(--card));
+    @apply backdrop-blur-xl border border-glass-border rounded-xl;
+  }
+
+  .bg-card-translucent {
+    background: hsl(var(--card));
+    @apply backdrop-blur-xl;
+  }
+
+  .glass-panel-hover {
+    @apply glass-panel transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5;
+  }
+
+  .gradient-bg {
+    background: linear-gradient(135deg, hsl(var(--gradient-start)), hsl(var(--gradient-mid)), hsl(var(--gradient-end)));
+  }
+
+  .glow-text {
+    @apply text-primary;
+    text-shadow: 0 0 20px hsl(210 100% 56% / 0.4);
+  }
+
+  .glow-border {
+    box-shadow: 0 0 15px -3px hsl(210 100% 56% / 0.15), inset 0 0 15px -3px hsl(210 100% 56% / 0.05);
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-300;
+  }
+}
