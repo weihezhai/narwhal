@@ -1,4 +1,4 @@
-![Trading Narwhal Header](https://capsule-render.vercel.app/api?type=rounded&height=350&color=gradient&text=Trading%20Narwhal&section=header&animation=fadeIn)
+![Trading Narwhal Header]([https://capsule-render.vercel.app/api?type=rounded&height=350&color=gradient&text=Trading%20Narwhal&section=header&animation=fadeIn](https://capsule-render.vercel.app/api?type=venom&height=350&color=gradient&text=Trading%20Narwhal&section=header&animation=fadeIn))
 
 # TradingNarwhal
 
