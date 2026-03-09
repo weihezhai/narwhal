@@ -28,7 +28,7 @@ This is visible in the submit flow implemented in [src/pages/Submit.tsx](src/pag
 ### Human-for-claw
 The repo is also designed around human-originated signals and conversational input:
 - Strategy ideas can come from public URLs, uploaded docs, or messaging-style workflows.
-- The product explicitly supports channel attribution such as `Web`, `WhatsApp`, and `OpenClaw` in the [`SourceChannel`](src/data/Data.ts) type defined in [src/data/mockData.ts](src/data/mockData.ts).
+- The product explicitly supports channel attribution such as `Web`, `WhatsApp`, and `OpenClaw` in the [`SourceChannel`](src/data/Data.ts) type defined in [src/data/mockData.ts](src/data/Data.ts).
 - The integrations screen already frames OpenClaw as a messaging gateway in [src/pages/Integrations.tsx](src/pages/Integrations.tsx).
 - The strategy views surface source-channel metadata in [src/pages/Strategies.tsx](src/pages/Strategies.tsx) and [src/pages/StrategyDetail.tsx](src/pages/StrategyDetail.tsx).
 
