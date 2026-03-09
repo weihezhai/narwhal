@@ -1,3 +1,5 @@
+![Trading Narwhal Header](https://capsule-render.vercel.app/api?type=rounded&height=350&color=gradient&text=Trading%20Narwhal&section=header&animation=fadeIn)
+
 # TradingNarwhal
 
 TradingNarwhal is an alpha extraction and benchmarking platform for turning trading ideas into standardized, testable strategies.
