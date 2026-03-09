@@ -111,7 +111,6 @@ This repo is built to showcase **GLM-5 from Z.ai** as the intelligence layer tha
 Current configuration in [src/pages/Submit.tsx](src/pages/Submit.tsx):
 - displayed model name: `GLM-5`
 - provider: `Z.ai`
-- default selected model id: `gpt-5.4-2026-03-05`
 
 In product terms, GLM-5 is responsible for:
 - understanding raw strategy descriptions
