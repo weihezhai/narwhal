@@ -7,7 +7,7 @@ TradingNarwhal is an alpha extraction and benchmarking platform for turning trad
 
 The repo accepts strategy input from links, documents, and messaging-style sources, converts that input into executable strategy code, runs a backtest, stores the result, and surfaces the strategy on a leaderboard.
 
-A core point of this project is the use of **Z.ai GLM-5** as the strategy-generation LLM. In the current implementation, the frontend model selector is configured in [`LLM_MODELS`](src/pages/Submit.tsx) and defaults through [`OPENAI_DEFAULT_MODEL`](src/pages/Submit.tsx) inside [src/pages/Submit.tsx](src/pages/Submit.tsx).
+A core point of this project is the use of **Z.ai GLM-5** as the strategy-generation LLM. In the current implementation, the frontend model selector is configured in [`LLM_MODELS`](src/pages/Submit.tsx) and defaults through [`DEFAULT_MODEL`](src/pages/Submit.tsx) inside [src/pages/Submit.tsx](src/pages/Submit.tsx).
 
 ---
 
