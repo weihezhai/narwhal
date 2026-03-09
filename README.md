@@ -1,130 +1,386 @@
-# Welcome to your Lovable project
+# TradingNarwhal
 
-## Project info
+TradingNarwhal is an alpha extraction and benchmarking platform for turning trading ideas into standardized, testable strategies.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+The repo accepts strategy input from links, documents, and messaging-style sources, converts that input into executable strategy code, runs a backtest, stores the result, and surfaces the strategy on a leaderboard.
 
-## How can I edit this code?
+A core point of this project is the use of **Z.ai GLM-5** as the strategy-generation LLM. In the current implementation, the frontend model selector is configured in [`LLM_MODELS`](src/pages/Submit.tsx) and defaults through [`OPENAI_DEFAULT_MODEL`](src/pages/Submit.tsx) inside [src/pages/Submit.tsx](src/pages/Submit.tsx).
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## Why this project fits the hackathon theme
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+This repo maps well to the **“claw-for-human”** and **“human-for-claw”** theme:
 
-Changes made via Lovable will be committed automatically to this repo.
+### Claw-for-human
+The system acts as an AI execution layer for people:
+- A human submits raw strategy content.
+- The app extracts and structures it.
+- The LLM converts it into deployable Python strategy logic.
+- The backend runs a standardized backtest.
+- The user gets validation, metrics, and ranking.
 
-**Use your preferred IDE**
+This is visible in the submit flow implemented in [src/pages/Submit.tsx](src/pages/Submit.tsx), the backend backtest path in [server/worker.mjs](server/worker.mjs), and the strategy persistence API in [src/lib/strategiesApi.ts](src/lib/strategiesApi.ts).
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Human-for-claw
+The repo is also designed around human-originated signals and conversational input:
+- Strategy ideas can come from public URLs, uploaded docs, or messaging-style workflows.
+- The product explicitly supports channel attribution such as `Web`, `WhatsApp`, and `OpenClaw` in the [`SourceChannel`](src/data/mockData.ts) type defined in [src/data/mockData.ts](src/data/mockData.ts).
+- The integrations screen already frames OpenClaw as a messaging gateway in [src/pages/Integrations.tsx](src/pages/Integrations.tsx).
+- The strategy views surface source-channel metadata in [src/pages/Strategies.tsx](src/pages/Strategies.tsx) and [src/pages/StrategyDetail.tsx](src/pages/StrategyDetail.tsx).
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+In short, humans provide intent, context, and strategy ideas; the “claw” system operationalizes them into structured, benchmarkable trading agents.
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## What this repo does
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+TradingNarwhal provides four main functions:
 
-# Step 3: Install the necessary dependencies.
-npm i
+### 1. Strategy ingestion
+Users can submit strategy content through the Strategy Builder in [src/pages/Submit.tsx](src/pages/Submit.tsx).
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+Main capabilities:
+- paste a URL
+- attach a file
+- choose an extraction model
+- bind an API key
+- generate strategy code from source material
 
-## Runtime setup (backend + Supabase)
+Relevant implementation:
+- [`extractSkillMarkdownWithOpenAI`](src/pages/Submit.tsx)
+- [`fetchStrategyTextFromUrl`](src/pages/Submit.tsx)
+- [`startExtraction`](src/pages/Submit.tsx)
 
-1. Configure env:
-```sh
-cp .env.development .env.local
-```
-Then fill:
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `MASSIVE_API_KEY`
-- `RATE_LIMIT_DAILY_MAX` (default `200`)
-- `RATE_LIMIT_WHITELIST` (comma-separated IP list)
+### 2. LLM-based strategy generation
+The project uses **Z.ai GLM-5** as the configured LLM entry in the UI model selector:
+- model list: [`LLM_MODELS`](src/pages/Submit.tsx)
+- default model: [`OPENAI_DEFAULT_MODEL`](src/pages/Submit.tsx)
 
-2. Start backend proxy:
-```sh
-npm run backend:dev
-```
+The generated output is a Python strategy script with:
+- a strategy name
+- executable backtest logic
+- JSON-safe outputs
+- normalized summary and trade summary objects
 
-3. Start frontend:
-```sh
-npm run dev
-```
+The prompt and generation pipeline live in [src/pages/Submit.tsx](src/pages/Submit.tsx).
 
-4. Create Supabase table:
-- Run SQL in [`supabase/strategies.sql`](./supabase/strategies.sql).
+### 3. Backtesting and metric generation
+The repo supports two backtest paths:
 
-## Cloudflare backend deployment (Worker)
+#### Massive/backend backtest
+The frontend calls [`runMassiveBacktest`](src/pages/Submit.tsx), which hits the backend API implemented in [server/worker.mjs](server/worker.mjs) or [server/backtest-proxy.mjs](server/backtest-proxy.mjs).
 
-Backend is now deployable as a Cloudflare Worker with the same API routes:
+Routes include:
 - `/api/backtest`
 - `/api/leaderboard/live`
 - `/api/identity`
 - `/api/strategies`
 
-Required Worker secrets:
-- `MASSIVE_API_KEY`
-- `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
+#### In-browser Python execution
+The Strategy Builder also supports Python execution in-browser through Pyodide in [src/pages/Submit.tsx](src/pages/Submit.tsx), including:
+- preset dataset loading
+- code execution
+- artifact extraction
+- summary normalization
 
-Optional Worker vars (already in `wrangler.toml` defaults):
-- `SUPABASE_TABLE` (default: `strategies`)
-- `RATE_LIMIT_DAILY_MAX` (default: `200`)
-- `RATE_LIMIT_WHITELIST` (comma-separated IPs)
-- `LEADERBOARD_REFRESH_MS` (default: `20000`)
+This lets users inspect strategy behavior before deployment.
 
-Commands:
+### 4. Ranking, storage, and review
+After backtesting, strategies can be stored and shown in:
+- leaderboard view: [src/pages/Leaderboard.tsx](src/pages/Leaderboard.tsx)
+- strategies list: [src/pages/Strategies.tsx](src/pages/Strategies.tsx)
+- strategy detail page: [src/pages/StrategyDetail.tsx](src/pages/StrategyDetail.tsx)
+
+Persistence is handled through:
+- [`listStrategies`](src/lib/strategiesApi.ts)
+- [`upsertStrategy`](src/lib/strategiesApi.ts)
+- [`updateStrategy`](src/lib/strategiesApi.ts)
+
+Metric recomputation is handled by [scripts/recompute-strategy-metrics.mjs](scripts/recompute-strategy-metrics.mjs).
+
+---
+
+## LLM emphasis: Z.ai GLM-5
+
+This repo is built to showcase **GLM-5 from Z.ai** as the intelligence layer that turns messy human strategy descriptions into structured, executable trading logic.
+
+Current configuration in [src/pages/Submit.tsx](src/pages/Submit.tsx):
+- displayed model name: `GLM-5`
+- provider: `Z.ai`
+- default selected model id: `gpt-5.4-2026-03-05`
+
+In product terms, GLM-5 is responsible for:
+- understanding raw strategy descriptions
+- resolving missing implementation details conservatively
+- producing runnable Python strategy code
+- preserving human intent while enforcing machine-executable structure
+
+This is the clearest “claw-for-human” component in the repo.
+
+---
+
+## Product flow
+
+### Submit
+The user provides a URL, file, or text input in [src/pages/Submit.tsx](src/pages/Submit.tsx).
+
+### Extract
+The app fetches content and sends it through the configured LLM using [`extractSkillMarkdownWithOpenAI`](src/pages/Submit.tsx).
+
+### Validate
+The app supports review states such as valid, needs-review, and invalid inside [src/pages/Submit.tsx](src/pages/Submit.tsx), matching the multi-path flow described in [.lovable/plan.md](.lovable/plan.md).
+
+### Backtest
+The strategy is backtested through the backend route or via the in-browser Python runner.
+
+### Deploy
+The resulting strategy is persisted through [`upsertStrategy`](src/lib/strategiesApi.ts) and becomes visible in the leaderboard and strategy detail views.
+
+---
+
+## Architecture
+
+### Frontend
+Built with:
+- Vite
+- React
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+
+Entry files:
+- [src/main.tsx](src/main.tsx)
+- [src/App.tsx](src/App.tsx)
+
+Primary pages:
+- [src/pages/Submit.tsx](src/pages/Submit.tsx)
+- [src/pages/Leaderboard.tsx](src/pages/Leaderboard.tsx)
+- [src/pages/Strategies.tsx](src/pages/Strategies.tsx)
+- [src/pages/StrategyDetail.tsx](src/pages/StrategyDetail.tsx)
+- [src/pages/About.tsx](src/pages/About.tsx)
+- [src/pages/Integrations.tsx](src/pages/Integrations.tsx)
+
+### Backend
+Two server entry points are present:
+- [server/worker.mjs](server/worker.mjs)
+- [server/backtest-proxy.mjs](server/backtest-proxy.mjs)
+
+These handle:
+- backtest requests
+- identity/rate-limit flows
+- strategy CRUD proxying
+- leaderboard data serving
+
+### Data layer
+Strategy types are defined in [src/data/mockData.ts](src/data/mockData.ts), including:
+- [`Strategy`](src/data/mockData.ts)
+- [`SkillProfile`](src/data/mockData.ts)
+- [`Trade`](src/data/mockData.ts)
+- [`StrategySummary`](src/data/mockData.ts)
+
+---
+
+## Key repository functions
+
+### Strategy extraction and generation
+Implemented in [src/pages/Submit.tsx](src/pages/Submit.tsx):
+- [`fetchStrategyTextFromUrl`](src/pages/Submit.tsx)
+- [`extractSkillMarkdownWithOpenAI`](src/pages/Submit.tsx)
+- [`parseResponsesText`](src/pages/Submit.tsx)
+- [`unwrapMarkdownFence`](src/pages/Submit.tsx)
+
+### Backtest execution
+Implemented in [src/pages/Submit.tsx](src/pages/Submit.tsx):
+- [`runMassiveBacktest`](src/pages/Submit.tsx)
+- Python/Pyodide execution pipeline around [`runPythonStrategy`](src/pages/Submit.tsx)
+
+### Strategy persistence
+Implemented in [src/lib/strategiesApi.ts](src/lib/strategiesApi.ts):
+- [`getIdentity`](src/lib/strategiesApi.ts)
+- [`listStrategies`](src/lib/strategiesApi.ts)
+- [`upsertStrategy`](src/lib/strategiesApi.ts)
+- [`updateStrategy`](src/lib/strategiesApi.ts)
+
+### Backend synthetic and live support
+Implemented in [server/worker.mjs](server/worker.mjs):
+- benchmark detection
+- synthetic backtest generation
+- identity and rate-limit handling
+- leaderboard/live data support
+
+### Metrics maintenance
+Implemented in [scripts/recompute-strategy-metrics.mjs](scripts/recompute-strategy-metrics.mjs):
+- recomputes `hwm`
+- recomputes `maxdrawdown`
+- recomputes `sharpe`
+
+---
+
+## OpenClaw and messaging relevance
+
+This repo is especially suitable for a Claw-themed hackathon because it already models strategy intake as a messaging and human-interface problem.
+
+Evidence in the codebase:
+- OpenClaw integration framing in [src/pages/Integrations.tsx](src/pages/Integrations.tsx)
+- source-channel support via [`SourceChannel`](src/data/mockData.ts) in [src/data/mockData.ts](src/data/mockData.ts)
+- channel badges in [src/pages/Strategies.tsx](src/pages/Strategies.tsx)
+- submission provenance display in [src/pages/StrategyDetail.tsx](src/pages/StrategyDetail.tsx)
+
+This means the repo can be presented as:
+- an AI claw that helps humans operationalize ideas
+- a human input layer that feeds Claw through chat, messages, and shared public content
+
+---
+
+## Local development
+
+### Requirements
+- Node.js
+- npm
+
+Version management:
+- [.nvmrc](.nvmrc)
+
+### Install
 ```sh
-# local worker dev
-npm run backend:cf:dev
+npm i
+```
 
-# deploy worker
+### Start frontend
+```sh
+npm run dev
+```
+
+### Start backend proxy
+```sh
+npm run backend:dev
+```
+
+### Start Cloudflare worker locally
+```sh
+npm run backend:cf:dev
+```
+
+### Deploy Cloudflare worker
+```sh
 npm run backend:cf:deploy
 ```
 
-If your Cloudflare build command is still `npm run backend:production`, it is now a no-op build step (won't hang).
+Package scripts are defined in [package.json](package.json).
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Environment setup
 
-**Use GitHub Codespaces**
+Environment files in the repo:
+- [.env.development](.env.development)
+- [.env.production](.env.production)
+- [.dev.vars.example](.dev.vars.example)
+- [wrangler.toml](wrangler.toml)
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Typical required values:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `MASSIVE_API_KEY`
 
-## What technologies are used for this project?
+The Supabase table defaults are used by the backend and recompute script. See:
+- [server/worker.mjs](server/worker.mjs)
+- [server/backtest-proxy.mjs](server/backtest-proxy.mjs)
+- [scripts/recompute-strategy-metrics.mjs](scripts/recompute-strategy-metrics.mjs)
 
-This project is built with:
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Supabase
 
-## How can I deploy this project?
+Strategy storage is backed by Supabase.
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+Frontend API client:
+- [src/lib/strategiesApi.ts](src/lib/strategiesApi.ts)
 
-## Can I connect a custom domain to my Lovable project?
+Backend route handlers:
+- [server/worker.mjs](server/worker.mjs)
+- [server/backtest-proxy.mjs](server/backtest-proxy.mjs)
 
-Yes, you can!
+SQL setup:
+- [supabase/strategies.sql](supabase/strategies.sql)
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## UI overview
+
+### Leaderboard
+[Leaderboard](src/pages/Leaderboard.tsx) shows:
+- rank
+- strategy/model
+- account value
+- return
+- total P&L
+- fees
+- win rate
+- high water mark
+- additional metadata
+
+### Strategies
+[Strategies](src/pages/Strategies.tsx) shows:
+- strategy cards
+- owner-aware actions
+- source-channel badges
+- Sharpe and trade counts
+
+### Strategy Detail
+[StrategyDetail](src/pages/StrategyDetail.tsx) shows:
+- account metrics
+- source-channel provenance
+- skill profile
+- summary metrics for user-deployed strategies
+
+### Submit
+[Submit](src/pages/Submit.tsx) is the main demo path for the hackathon:
+- input
+- extraction
+- validation
+- Python execution
+- deployment
+- result export
+
+---
+
+## Why this repo is a strong hackathon demo
+
+This project demonstrates a complete human-to-agent loop:
+
+1. A person shares a strategy idea.
+2. GLM-5 interprets and structures it.
+3. The system backtests it under standardized rules.
+4. The result becomes portable, reviewable, and rankable.
+5. Messaging channels and OpenClaw-style ingestion make the experience collaborative and conversational.
+
+That directly supports the idea of building tools where:
+- **AI works for people**
+- **people provide the intent that powers AI systems**
+
+---
+
+## Suggested pitch
+
+**TradingNarwhal uses Z.ai GLM-5 to turn human trading ideas from links, docs, and chat-style inputs into executable strategies, standardized backtests, and leaderboard-ready results. It embodies “claw-for-human” by giving users an AI operator for strategy deployment, and “human-for-claw” by treating human conversation, messaging, and public content as the input layer that drives the system.**
+
+---
+
+## Repo structure
+
+- [src/](src)
+- [server/](server)
+- [scripts/](scripts)
+- [public/](public)
+- [supabase/](supabase)
+- [README.md](README.md)
+
+---
+
+## Notes
+- The frontend branding and product narrative are visible in [src/pages/About.tsx](src/pages/About.tsx).
+- The app shell is bootstrapped from [index.html](index.html).
+- Styling is configured in [tailwind.config.ts](tailwind.config.ts), [src/index.css](src/index.css), and [src/App.css](src/App.css).
