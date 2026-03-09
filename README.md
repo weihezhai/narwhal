@@ -51,14 +51,14 @@ Main capabilities:
 - generate strategy code from source material
 
 Relevant implementation:
-- [`extractSkillMarkdownWithOpenAI`](src/pages/Submit.tsx)
+- [`extractSkillMarkdownWith`](src/pages/Submit.tsx)
 - [`fetchStrategyTextFromUrl`](src/pages/Submit.tsx)
 - [`startExtraction`](src/pages/Submit.tsx)
 
 ### 2. LLM-based strategy generation
 The project uses **Z.ai GLM-5** as the configured LLM entry in the UI model selector:
 - model list: [`LLM_MODELS`](src/pages/Submit.tsx)
-- default model: [`OPENAI_DEFAULT_MODEL`](src/pages/Submit.tsx)
+- default model: [`DEFAULT_MODEL`](src/pages/Submit.tsx)
 
 The generated output is a Python strategy script with:
 - a strategy name
